@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 
 /**
  * Created by zn on 2018/7/12.
+ * 实现了监听器接口
  */
 public class ActionListenerImpl implements ActionListener {
 //    private JButton button;
