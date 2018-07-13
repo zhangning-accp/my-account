@@ -33,11 +33,11 @@ public class AccountFrame extends JFrame {
     private JLabel labAddPassword = new JLabel("密码");
     private JTextField txtAddPassword = new JTextField();
 
-
-
     private JButton btnAdd = new JButton("add");
     private JButton btnDelete = new JButton("delete");
     private JButton btnModify = new JButton("modify");
+
+    JPanel panelContent = new JPanel();
 
     public AccountFrame() {
         // === 初始化组件 =======
@@ -51,27 +51,45 @@ public class AccountFrame extends JFrame {
 
         panelAdd.add(labAddPassword);
         panelAdd.add(txtAddPassword);
-        panelAdd.setVisible(false);
+        //panelAdd.setVisible(false);
 
         //== 初始化底部面板
         panelProcess.add(btnAdd);
         panelProcess.add(btnDelete);
         panelProcess.add(btnModify);
 
+        panelContent.setLayout(new BorderLayout());
+        this.setContentPane(panelContent);
         //=== ====
-        this.add(panelSearch, BorderLayout.NORTH);//添加搜索面板到上方
-        this.add(panelProcess,BorderLayout.SOUTH);//添加操作面板到下方
-        this.add(panelAdd);
-        this.add(labView);
+        panelContent.add(panelSearch, BorderLayout.NORTH);//添加搜索面板到上方
+        panelContent.add(panelProcess,BorderLayout.SOUTH);//添加操作面板到下方
+        //panelContent.add(panelAdd);
+        panelContent.add(labView);
 
         // === 添加事件处理 =====
         btnAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // 移除labView 组件
-               AccountFrame.this.getLayout().removeLayoutComponent(labView);
-               AccountFrame.this.add(panelAdd);
-               panelAdd.setVisible(true);
+                // 1. 拿到文本的text内容，根据这个内容决定逻辑
+                String text = btnAdd.getText();
+                if(text.equals("add")) {// 进入添加纪录的操作
+                    // 移除labView 组件
+                    AccountFrame.this.panelContent.remove(labView);
+                    // 添加panel到中间
+                    AccountFrame.this.panelContent.add(panelAdd);
+                    text = "save";
+                } else {// 还原回初始的状态
+                    text = "add";
+                    AccountFrame.this.panelContent.remove(panelAdd);
+                    labView.setText("保存成功！！");
+                    AccountFrame.this.panelContent.add(labView);
+                }
+                btnAdd.setText(text);
+                btnDelete.setText("cancel");
+                btnModify.setVisible(false);
+                // 类似于页面刷新重绘。
+                AccountFrame.this.panelContent.setVisible(false);
+                AccountFrame.this.panelContent.setVisible(true);
             }
         });
 
