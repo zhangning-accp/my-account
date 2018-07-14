@@ -77,22 +77,23 @@ public class AccountFrame extends JFrame {
                     AccountFrame.this.panelContent.remove(labView);
                     // 添加panel到中间
                     AccountFrame.this.panelContent.add(panelAdd);
+                    btnDelete.setText("cancel");
+                    btnModify.setVisible(false);
                     text = "save";
                 } else {// 还原回初始的状态
                     text = "add";
                     AccountFrame.this.panelContent.remove(panelAdd);
                     labView.setText("保存成功！！");
                     AccountFrame.this.panelContent.add(labView);
+                    btnDelete.setText("delete");
+                    btnModify.setVisible(true);
                 }
                 btnAdd.setText(text);
-                btnDelete.setText("cancel");
-                btnModify.setVisible(false);
                 // 类似于页面刷新重绘。
                 AccountFrame.this.panelContent.setVisible(false);
                 AccountFrame.this.panelContent.setVisible(true);
             }
         });
-
         // === 设定窗体相关属性 ====
         this.setSize(800,600);
         this.setTitle("账号首页");
