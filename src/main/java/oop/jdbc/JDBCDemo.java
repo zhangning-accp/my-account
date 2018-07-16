@@ -95,10 +95,10 @@ public class JDBCDemo {
     public static void main(String [] args) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("========================================================");
-            System.out.println("|       欢迎使用HNB 11 人工智能系统  请选择你要进行的操作:   |");
-            System.out.println("| 1.添加数据    2.修改数据    3.删除数据    4.退出系统      |");
-            System.out.println("========================================================");
+            System.out.println("=============================================================");
+            System.out.println("|     欢迎使用HNB 11 人工智能系统  请选择你要进行的操作:   |");
+            System.out.println("| 1.添加数据   2.修改数据   3.删除数据   4.退出系统      |");
+            System.out.println("=============================================================");
             int select = 0;//接收用户选择的选项。
             select = scanner.nextInt();
             while (select < 1 || select > 4) {
