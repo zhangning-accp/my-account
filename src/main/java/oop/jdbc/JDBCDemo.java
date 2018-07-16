@@ -153,7 +153,6 @@ public class JDBCDemo {
        System.out.println(buffer.toString());
     }
 
-
     private void findAccountDataById(int id) {
         //1. 获取数据库连接
         Connection connection = getConnection();
@@ -248,12 +247,7 @@ public class JDBCDemo {
             System.out.println("=============================================================");
             int select = 0;//接收用户选择的选项。
             select = scanner.nextInt();
-            while (select < 1 || select > 4) {
-                System.out.println("选择的操作不能识别，请重新选择：");
-                select = scanner.nextInt();
-            }
             String value = null;
-
             if (select == 1) {//添加数据
                 System.out.println("请输入要添加的账号和密码，中间用逗号分隔.举例：126.com,3456");
                 value = scanner.next();
@@ -274,6 +268,8 @@ public class JDBCDemo {
                 jdbcDemo.findAllDataFormatOutput();
             } else if (select == 5) {// 退出系统
                 System.exit(-1);
+            } else {
+                System.out.println("选择的操作不能识别，请重新选择：");
             }
         }
     }
