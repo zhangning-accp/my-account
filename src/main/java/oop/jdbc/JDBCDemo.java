@@ -1,5 +1,6 @@
 package oop.jdbc;
 
+import com.sun.javafx.binding.StringFormatter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -54,16 +55,7 @@ public class JDBCDemo {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-            if(statement != null) {
-                statement.close();
-            }
-            if(connection != null) {
-                connection.close();
-            }
-            }catch (SQLException e) {
-                e.printStackTrace();
-            }
+            close(connection,statement,null);
         }
     }
 
@@ -84,20 +76,11 @@ public class JDBCDemo {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if(statement != null) {
-                    statement.close();
-                }
-                if(connection != null) {
-                    connection.close();
-                }
-            }catch (SQLException e) {
-                e.printStackTrace();
-            }
+            close(connection,statement,null);
         }
     }
 
-    private void testUpdateData(int id,String account,String password) {
+    private void updateData(int id,String account,String password) {
         Connection connection = null;
         Statement statement = null;
 
@@ -115,26 +98,104 @@ public class JDBCDemo {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if(statement != null) {
-                    statement.close();
-                }
-                if(connection != null) {
-                    connection.close();
-                }
-            }catch (SQLException e) {
-                e.printStackTrace();
-            }
+            close(connection,statement,null);
         }
     }
 
-    private void findAllData() {
+    private String [][] bestFindAllData() {
+        // 申明一个100 x 3的数组，代表100行3列
+        String [][] datas = new String [100][3];
         //1. 获取数据库连接
         Connection connection = getConnection();
         Statement statement = null;
         ResultSet resultSet = null;
         //2. 构建查询的sql语句
         String sql = "select user_account,user_password,id from account";
+        try {
+            //3. 执行sql语句，并获得结果集
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+            //4. 遍历结果集，输出每条记录的信息。
+            int index = 0;
+             while(resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String account = resultSet.getString("user_account");
+                String password = resultSet.getString("user_password");
+                datas[index][0] = id + "";
+                datas[index][1] = account;
+                datas[index][2] = password;
+                index ++;
+             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(connection,statement,resultSet);
+        }
+        return datas;
+    }
+    private void findAllDataFormatOutput() {
+        String [][] datas = bestFindAllData();
+            //4. 遍历结果集，输出每条记录的信息。
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
+        buffer.append("id\t\t\taccount\t\t\tpassword\t\t\t" + System.lineSeparator());
+        buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
+        for(int i = 0; i < datas.length; i ++) {
+          String [] values = datas[i];
+          // 因为返回的数组里可能包含多余的数据，所以，需要进行过滤
+          if(values[0] != null && values[1] != null && values[2] != null) {
+              buffer.append(
+                      String.format(
+                              "%s\t|%s\t|%s", values[0], values[1], values[2]));
+              buffer.append(System.lineSeparator());
+          }
+       }
+       System.out.println(buffer.toString());
+    }
+
+
+    private void findAccountDataById(int id) {
+        //1. 获取数据库连接
+        Connection connection = getConnection();
+        Statement statement = null;
+        ResultSet resultSet = null;
+        //2. 构建查询的sql语句
+        String sql = "select user_account,user_password,id from account where id=" + id;
+        try {
+            //3. 执行sql语句，并获得结果集
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+            //4. 遍历结果集，输出每条记录的信息。
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
+            buffer.append("id\t\t\taccount\t\t\tpassword\t\t\t" + System.lineSeparator());
+            buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
+            while(resultSet.next()) {
+                String account = resultSet.getString("user_account");
+                String password = resultSet.getString("user_password");
+                buffer.append(id + "\t| " + account + "| \t" + password + "|" + System.lineSeparator());
+            }
+
+            System.out.println(buffer.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(connection,statement,resultSet);
+        }
+    }
+
+    /**
+     * 模糊搜索数据，根据用户用户输入的关键词来模糊查询。
+     * @param keyWord
+     */
+    private void findAccountDataLikeKeyWord(String keyWord) {
+        //1. 获取数据库连接
+        Connection connection = getConnection();
+        Statement statement = null;
+        ResultSet resultSet = null;
+        //2. 构建查询的sql语句
+        String sql = "select user_account,user_password,id from account " +
+                "where user_account like '%" + keyWord + "%' or user_password like '%" + keyWord + "%'";
         try {
             //3. 执行sql语句，并获得结果集
             statement = connection.createStatement();
@@ -155,80 +216,27 @@ public class JDBCDemo {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if(resultSet != null) {
-                    resultSet.close();
-                }
-                if(statement != null) {
-                    statement.close();
-                }
-                if(connection != null) {
-                    connection.close();
-                }
-            }catch (SQLException e) {
-                e.printStackTrace();
-            }
+            close(connection,statement,resultSet);
         }
     }
 
-    private void findAccountDataById(int id) {
-        //1. 获取数据库连接
-        Connection connection = getConnection();
-        //2. 构建查询的sql语句
-        String sql = "select user_account,user_password,id from account where id=" + id;
+    private void close(Connection connection,
+                       Statement statement,
+                       ResultSet resultSet) {
         try {
-            //3. 执行sql语句，并获得结果集
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-            //4. 遍历结果集，输出每条记录的信息。
-            StringBuffer buffer = new StringBuffer();
-            buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
-            buffer.append("id\t\t\taccount\t\t\tpassword\t\t\t" + System.lineSeparator());
-            buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
-            while(resultSet.next()) {
-                String account = resultSet.getString("user_account");
-                String password = resultSet.getString("user_password");
-                buffer.append(id + "\t| " + account + "| \t" + password + "|" + System.lineSeparator());
+            if(resultSet != null) {
+                resultSet.close();
             }
-
-            System.out.println(buffer.toString());
+            if(statement != null) {
+                statement.close();
+            }
+            if(connection != null) {
+                connection.close();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
-    /**
-     * 模糊搜索数据，根据用户用户输入的关键词来模糊查询。
-     * @param keyWord
-     */
-    private void findAccountDataLikeKeyWord(String keyWord) {
-        //1. 获取数据库连接
-        Connection connection = getConnection();
-        //2. 构建查询的sql语句
-        String sql = "select user_account,user_password,id from account " +
-                "where user_account like '%" + keyWord + "%' or user_password like '%" + keyWord + "%'";
-        try {
-            //3. 执行sql语句，并获得结果集
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-            //4. 遍历结果集，输出每条记录的信息。
-            StringBuffer buffer = new StringBuffer();
-            buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
-            buffer.append("id\t\t\taccount\t\t\tpassword\t\t\t" + System.lineSeparator());
-            buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
-            while(resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String account = resultSet.getString("user_account");
-                String password = resultSet.getString("user_password");
-                buffer.append(id + "\t| " + account + "| \t" + password + "|" + System.lineSeparator());
-            }
-
-            System.out.println(buffer.toString());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void main(String [] args) {
         Scanner scanner = new Scanner(System.in);
         JDBCDemo jdbcDemo = new JDBCDemo();
@@ -236,7 +244,7 @@ public class JDBCDemo {
         while (true) {
             System.out.println("=============================================================");
             System.out.println("|     欢迎使用HNB 11 人工智能系统  请选择你要进行的操作:   |");
-            System.out.println("| 1.添加数据   2.修改数据   3.删除数据   4.退出系统      |");
+            System.out.println("| 1.添加数据   2.修改数据   3.删除数据   4. 查看数据 5.退出系统        |");
             System.out.println("=============================================================");
             int select = 0;//接收用户选择的选项。
             select = scanner.nextInt();
@@ -256,13 +264,15 @@ public class JDBCDemo {
                 System.out.println("请输入要修改的id、账号和密码。逗号分隔。系统将根据id进行数据的更新。id本身不会更新请放心..");
                 value = scanner.next();
                 String[] values = value.split(",");
-                jdbcDemo.testUpdateData(Integer.parseInt(values[0]),
+                jdbcDemo.updateData(Integer.parseInt(values[0]),
                         values[1],values[2]);
             } else if (select == 3) {// 删除数据
                 System.out.println("请输入要删除的id");
                 value = scanner.next();
                 jdbcDemo.deleteData(Integer.parseInt(value));
             } else if (select == 4) {// 退出系统
+                jdbcDemo.findAllDataFormatOutput();
+            } else if (select == 5) {// 退出系统
                 System.exit(-1);
             }
         }
