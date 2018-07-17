@@ -2,10 +2,14 @@ package oop.ui.table;
 
 import java.awt.Checkbox;
 import java.awt.Color;
+import java.awt.Component;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import oop.jdbc.JDBCDemo;
 
 /**
@@ -26,9 +30,15 @@ public class JTableDemo extends JFrame{
         }
         //3. 创建JTable对象
         JTable table = new JTable();
-        datas = new JDBCDemo().bestFindAllData();
+        //datas = new JDBCDemo().bestFindAllData();
         DefaultTableModel tableModel = getTableModel(datas,heads);
         table.setModel(tableModel);
+        // 设置第1列的数据显示为checkbox
+        TableColumn column = table.getColumnModel().getColumn(1);
+        column.setCellEditor(table.getDefaultEditor(Boolean.class));
+        column.setCellRenderer(table.getDefaultRenderer(Boolean.class));
+
+
         table.setAutoCreateRowSorter(true);
         //JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.getViewport().add(table);
