@@ -102,7 +102,7 @@ public class JDBCDemo {
         }
     }
 
-    private String [][] bestFindAllData() {
+    public String [][] bestFindAllData() {
         // 申明一个100 x 3的数组，代表100行3列
         String [][] datas = new String [100][3];
         //1. 获取数据库连接
