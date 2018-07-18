@@ -9,7 +9,11 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+import oop.jdbc.JDBCDemo;
 
 /**
  * Created by zn on 2018/7/13.
@@ -23,7 +27,12 @@ public class AccountFrame extends JFrame {
     private JTextField txtSearch = new JTextField();
     // 搜索按钮
     private JButton btnSearch = new JButton("search");
-    private JLabel labView = new JLabel("看我啊");
+    // 创建一个滚动面板，水平和垂直滚动条示情况显示
+    private JScrollPane scrollPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+    private JTable table = new JTable();
+    //private JLabel labView = new JLabel("看我啊");
     //添加功能所使用的面板，包含很多组件
     private JPanel panelAdd = new JPanel();
 
@@ -38,6 +47,8 @@ public class AccountFrame extends JFrame {
     private JButton btnModify = new JButton("modify");
 
     JPanel panelContent = new JPanel();
+
+    JDBCDemo jdbcDemo = new JDBCDemo();
 
     public AccountFrame() {
         // === 初始化组件 =======
@@ -64,9 +75,22 @@ public class AccountFrame extends JFrame {
         panelContent.add(panelSearch, BorderLayout.NORTH);//添加搜索面板到上方
         panelContent.add(panelProcess,BorderLayout.SOUTH);//添加操作面板到下方
         //panelContent.add(panelAdd);
-        panelContent.add(labView);
+        initTable("");
+        scrollPane.getViewport().add(table);
+
+        panelContent.add(scrollPane);
 
         // === 添加事件处理 =====
+
+        btnSearch.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //1. 获得用户输入的文本内容
+                String keyword = txtSearch.getText();
+                initTable(keyword);
+            }
+        });
+
         btnAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -74,7 +98,7 @@ public class AccountFrame extends JFrame {
                 String text = btnAdd.getText();
                 if(text.equals("add")) {// 进入添加纪录的操作
                     // 移除labView 组件
-                    AccountFrame.this.panelContent.remove(labView);
+                    AccountFrame.this.panelContent.remove(scrollPane);
                     // 添加panel到中间
                     AccountFrame.this.panelContent.add(panelAdd);
                     btnDelete.setText("cancel");
@@ -83,8 +107,8 @@ public class AccountFrame extends JFrame {
                 } else {// 还原回初始的状态
                     text = "add";
                     AccountFrame.this.panelContent.remove(panelAdd);
-                    labView.setText("保存成功！！");
-                    AccountFrame.this.panelContent.add(labView);
+                    //labView.setText("保存成功！！");
+                    AccountFrame.this.panelContent.add(scrollPane);
                     btnDelete.setText("delete");
                     btnModify.setVisible(true);
                 }
@@ -99,6 +123,27 @@ public class AccountFrame extends JFrame {
         this.setTitle("账号首页");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
+    }
+
+    private void initTable(String keyword) {
+        String [][] datas = null;
+        //2. 如果为空，这查询所有数据，否则按关键字搜索。
+        if(keyword == null || keyword.trim().equals("")) {
+            datas = jdbcDemo.bestFindAllData();
+        } else {
+            datas = jdbcDemo.findAccountDataLikeKeyWord(keyword);
+        }
+        table.setModel(getTableModel(datas));
+    }
+    private DefaultTableModel getTableModel(Object [][] rowDatas) {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("id");
+        model.addColumn("账号");
+        model.addColumn("密码");
+        for(Object [] data : rowDatas) {
+            model.addRow(data);
+        }
+        return model;
     }
 
     public static void main(String ... args) {

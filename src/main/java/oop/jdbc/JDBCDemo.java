@@ -187,7 +187,8 @@ public class JDBCDemo {
      * 模糊搜索数据，根据用户用户输入的关键词来模糊查询。
      * @param keyWord
      */
-    private void findAccountDataLikeKeyWord(String keyWord) {
+    public String [][] findAccountDataLikeKeyWord(String keyWord) {
+        String [][] datas = new String [100][3];
         //1. 获取数据库连接
         Connection connection = getConnection();
         Statement statement = null;
@@ -199,24 +200,22 @@ public class JDBCDemo {
             //3. 执行sql语句，并获得结果集
             statement = connection.createStatement();
             resultSet = statement.executeQuery(sql);
-            //4. 遍历结果集，输出每条记录的信息。
-            StringBuffer buffer = new StringBuffer();
-            buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
-            buffer.append("id\t\t\taccount\t\t\tpassword\t\t\t" + System.lineSeparator());
-            buffer.append("------------------------------------------------------------------------------------------------" + System.lineSeparator());
+            int index = 0;
             while(resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String account = resultSet.getString("user_account");
                 String password = resultSet.getString("user_password");
-                buffer.append(id + "\t| " + account + "| \t" + password + "|" + System.lineSeparator());
+                datas[index][0] = id + "";
+                datas[index][1] = account;
+                datas[index][2] = password;
+                index ++;
             }
-
-            System.out.println(buffer.toString());
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             close(connection,statement,resultSet);
         }
+        return datas;
     }
 
     private void close(Connection connection,
