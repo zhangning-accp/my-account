@@ -5,13 +5,18 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import oop.jdbc.JDBCDemo;
 
@@ -118,6 +123,47 @@ public class AccountFrame extends JFrame {
                 AccountFrame.this.panelContent.setVisible(true);
             }
         });
+        txtSearch.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {}
+            @Override
+            public void keyReleased(KeyEvent e) {
+                // 获取到用户输入的查询关键字，并更新表格数据
+                initTable(txtSearch.getText());
+            }
+        });
+        btnDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 实现删除操作：
+                //1. 判断是否有数据被选中
+                int row = table.getSelectedRow();
+                if(row < 0) {
+                    //告诉用户没有选择任何数据
+                    JOptionPane.showMessageDialog(null,
+                            "请选择需要删除的数据","提示",
+                            JOptionPane.WARNING_MESSAGE);
+                } else {
+                    //2. 让用户确实是否要删除，如果用户选择是则进行删除，否则不做删除动作
+                    int option = JOptionPane.showConfirmDialog(AccountFrame.this,
+                            "确定要删除选中的数据吗？","删除确认",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE);
+                    if(option == 0) {
+                        // 删除操作. 1. 拿到用户选择的数据的id
+                        Object value = table.getValueAt(row,0);
+                        if(value != null && !(value + "").trim().equals("")) {
+                            int id = Integer.parseInt(table.getValueAt(row,0) + "");
+                            jdbcDemo.deleteData(id);
+                            //删除后重新加载数据
+                            initTable(txtSearch.getText());
+                        }
+                    }
+                }
+            }
+        });
         // === 设定窗体相关属性 ====
         this.setSize(800,600);
         this.setTitle("账号首页");
@@ -135,6 +181,7 @@ public class AccountFrame extends JFrame {
         }
         table.setModel(getTableModel(datas));
     }
+
     private DefaultTableModel getTableModel(Object [][] rowDatas) {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("id");

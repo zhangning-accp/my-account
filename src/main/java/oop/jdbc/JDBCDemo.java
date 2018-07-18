@@ -59,7 +59,7 @@ public class JDBCDemo {
         }
     }
 
-    private void deleteData(int id) {
+    public void deleteData(int id) {
         Connection connection = null;
         Statement statement = null;
         try {
