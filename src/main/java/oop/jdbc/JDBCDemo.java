@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
+import oop.dao.Account;
+import oop.dao.AccountDAO;
 
 /**
  * Created by zn on 2018/7/14.
@@ -17,7 +19,7 @@ public class JDBCDemo {
     /**
      * 该方法的作用是获取一个数据库连接对象
      */
-    private Connection getConnection() {
+    public static Connection getConnection() {
         //1. 加载驱动
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -237,7 +239,8 @@ public class JDBCDemo {
     }
     public static void main(String [] args) {
         Scanner scanner = new Scanner(System.in);
-        JDBCDemo jdbcDemo = new JDBCDemo();
+//        JDBCDemo jdbcDemo = new JDBCDemo();
+        AccountDAO dao = new AccountDAO();
         //jdbcDemo.findAccountDataLikeKeyWord("5");
         while (true) {
             System.out.println("=============================================================");
@@ -251,20 +254,40 @@ public class JDBCDemo {
                 System.out.println("请输入要添加的账号和密码，中间用逗号分隔.举例：126.com,3456");
                 value = scanner.next();
                 String[] values = value.split(",");
-                jdbcDemo.insertData((int) System.currentTimeMillis(),
-                        values[0], values[1]);
+
+                Account account = new Account();
+                account.setId((int) System.currentTimeMillis());
+                account.setUserAccount(values[0]);
+                account.setUserPassword(values[1]);
+
+                dao.insert(account);
+//                jdbcDemo.insertData((int) System.currentTimeMillis(),
+//                        values[0], values[1]);
             } else if (select == 2) {// 修改数据
                 System.out.println("请输入要修改的id、账号和密码。逗号分隔。系统将根据id进行数据的更新。id本身不会更新请放心..");
                 value = scanner.next();
                 String[] values = value.split(",");
-                jdbcDemo.updateData(Integer.parseInt(values[0]),
-                        values[1],values[2]);
+
+                Account account = new Account();
+                account.setId(Integer.parseInt(values[0]));
+                account.setUserAccount(values[1]);
+                account.setUserPassword(values[2]);
+
+                dao.update(account);
+
+//                jdbcDemo.updateData(Integer.parseInt(values[0]),
+//                        values[1],values[2]);
             } else if (select == 3) {// 删除数据
                 System.out.println("请输入要删除的id");
                 value = scanner.next();
-                jdbcDemo.deleteData(Integer.parseInt(value));
+//                Account account = new Account();
+//                account.setId(Integer.parseInt(value));
+                dao.delete(Integer.parseInt(value));
+
+//                jdbcDemo.deleteData(Integer.parseInt(value));
+
             } else if (select == 4) {// 退出系统
-                jdbcDemo.findAllDataFormatOutput();
+                //jdbcDemo.findAllDataFormatOutput();
             } else if (select == 5) {// 退出系统
                 System.exit(-1);
             } else {
