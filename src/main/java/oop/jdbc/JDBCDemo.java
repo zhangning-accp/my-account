@@ -4,8 +4,11 @@ import com.sun.javafx.binding.StringFormatter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import oop.dao.Account;
 import oop.dao.AccountDAO;
@@ -220,6 +223,20 @@ public class JDBCDemo {
         return datas;
     }
 
+    private List<String> getColumNames(ResultSet resultSet) {
+        List<String> columNames = new ArrayList<>();
+        try {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int colums = metaData.getColumnCount();
+            for(int i = 0; i < colums; i ++) {
+                columNames.add(metaData.getCatalogName(i));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return columNames;
+
+    }
     private void close(Connection connection,
                        Statement statement,
                        ResultSet resultSet) {
