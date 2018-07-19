@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.List;
+import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -18,6 +20,8 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import oop.dao.Account;
+import oop.dao.AccountDAO;
 import oop.jdbc.JDBCDemo;
 
 /**
@@ -53,7 +57,8 @@ public class AccountFrame extends JFrame {
 
     JPanel panelContent = new JPanel();
 
-    JDBCDemo jdbcDemo = new JDBCDemo();
+    //JDBCDemo jdbcDemo = new JDBCDemo();
+    AccountDAO dao = new AccountDAO();
 
     public AccountFrame() {
         // === 初始化组件 =======
@@ -156,7 +161,7 @@ public class AccountFrame extends JFrame {
                         Object value = table.getValueAt(row,0);
                         if(value != null && !(value + "").trim().equals("")) {
                             int id = Integer.parseInt(table.getValueAt(row,0) + "");
-                            jdbcDemo.deleteData(id);
+                            dao.delete(id);
                             //删除后重新加载数据
                             initTable(txtSearch.getText());
                         }
@@ -172,28 +177,33 @@ public class AccountFrame extends JFrame {
     }
 
     private void initTable(String keyword) {
-        String [][] datas = null;
+        List<Account> list = null;
         //2. 如果为空，这查询所有数据，否则按关键字搜索。
         if(keyword == null || keyword.trim().equals("")) {
-            datas = jdbcDemo.bestFindAllData();
+            list = dao.findAll();
         } else {
-            datas = jdbcDemo.findAccountDataLikeKeyWord(keyword);
+            list = dao.findByKeyword(keyword);
         }
-        table.setModel(getTableModel(datas));
+        table.setModel(getTableModel(list));
     }
 
-    private DefaultTableModel getTableModel(Object [][] rowDatas) {
+    private DefaultTableModel getTableModel(List<Account> list) {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("id");
         model.addColumn("账号");
         model.addColumn("密码");
-        for(Object [] data : rowDatas) {
-            model.addRow(data);
+        for(Account account : list) {
+            Vector vector = new Vector();// ArrayList
+            vector.add(account.getId());
+            vector.add(account.getUserAccount());
+            vector.add(account.getUserPassword());
+
+            model.addRow(vector);
         }
         return model;
     }
 
-    public static void main(String ... args) {
+    public static void main(String ...args) {//可变长参数
         new AccountFrame();
     }
 

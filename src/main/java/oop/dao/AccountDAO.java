@@ -98,7 +98,6 @@ public class AccountDAO {
             int index = 0;
             while(resultSet.next()) {// 定位到某一行
                 Account account = new Account();
-
                 int id = resultSet.getInt("id");
                 String userAccount = resultSet.getString("user_account");
                 String password = resultSet.getString("user_password");
@@ -149,10 +148,19 @@ public class AccountDAO {
         return null;
     }
 
+    private void test(int ...sumArray) {
+        int sum = 0;
+        for(int i = 0; i < sumArray.length; i ++) {
+            sum += sumArray[i];
+        }
+        System.out.println("sum = " + sum);
+    }
     public static void main(String ... args) {
         AccountDAO dao = new AccountDAO();
+        //int [] sum = {1,2,3,4,5,7};
+        dao.test(1,2,3,4,5,6,7);
         //List<Account> list = dao.findAll();
-        Account account = dao.findById(50);
-        System.out.println(account);
+//        Account account = dao.findById(50);
+//        System.out.println(account);
     }
 }
