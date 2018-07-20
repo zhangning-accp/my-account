@@ -1,7 +1,7 @@
 package oop.io;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,11 +37,11 @@ public class IODemo {
     }
     private void reaer2Control() {
         try {
-            FileInputStream input = new FileInputStream("abc.txt");
+            FileReader input = new FileReader("1.jpg");
+            FileWriter output = new FileWriter("1-1.jpg");
             int content = -1;
             while((content = input.read()) != -1) {
-                char c = (char) content;
-                System.out.print(c);
+                output.write(content);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
