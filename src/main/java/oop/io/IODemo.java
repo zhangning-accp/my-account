@@ -1,7 +1,11 @@
 package oop.io;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by zn on 2018/7/20.
@@ -23,16 +27,31 @@ public class IODemo {
         } finally {
             try {
                 if (writer != null) {
+                   //writer.flush();
                     writer.close();//关闭输出流，试试如果不关闭是什么情况。
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+        }
+        }
+    }
+    private void reaer2Control() {
+        try {
+            FileInputStream input = new FileInputStream("abc.txt");
+            int content = -1;
+            while((content = input.read()) != -1) {
+                char c = (char) content;
+                System.out.print(c);
             }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
         IODemo ioDemo = new IODemo();
-        ioDemo.writeStringT2File();
+        ioDemo.reaer2Control();
     }
 }
