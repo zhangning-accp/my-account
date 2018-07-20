@@ -2,6 +2,7 @@ package oop.dao;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -11,76 +12,34 @@ import java.util.List;
  * Created by zn on 2018/7/18.
  * 对表Account的数据操作
  */
-public class AccountDAO {
-
+public class AccountDAO extends SuperDAO{
 
     public boolean delete(int id) {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = JDBCUtil.getConnection();
-            //2. 构建删除的sql语句
-            String sql = "delete from account where id=" + id;
-            //3. 执行删除语句
-            statement = connection.createStatement();
-            //4. 获取执行所影响的行数，判断是否执行成功
-            int rows = statement.executeUpdate(sql);
-            return rows > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            JDBCUtil.close(connection,statement,null);
-        }
-        return false;
+        String sql = "delete from account where id=" + id;
+        return executeDML(sql) > 0;
     }
 
+
+
     public boolean insert(Account account) {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = JDBCUtil.getConnection();
             //2. 构建添加数据的sql语句
-            String sql = "insert into account " +
-                    "values(" + account.getId() + ",'"
-                    + account.getUserAccount() + "','"
-                    + account.getUserPassword() + "')";
-            //System.out.println(sql);
+        String sql = "insert into account " +
+                "values(" + account.getId() + ",'"
+                + account.getUserAccount() + "','"
+                + account.getUserPassword() + "')";
             //3. 执行sql语句
-            statement = connection.createStatement();
-            //4. 得到执行后的结果，确定是否添加成功
-            int rows = statement.executeUpdate(sql);
-            return rows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            JDBCUtil.close(connection,statement,null);
-        }
-        return false;
+        return executeDML(sql) > 0;
     }
 
     public boolean update(Account account) {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = JDBCUtil.getConnection();
             //2. 创建update sql 语句
-            String sql = "update account set user_account='" + account.getUserAccount()
-                    + "',user_password='" + account.getUserPassword()
-                    + "' where id=" + account.getId();
-
-            //3. 执行update 语句
-            statement = connection.createStatement();
-            //4. 得到执行结果，确定是否成功
-            int rows = statement.executeUpdate(sql);
-            return rows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            JDBCUtil.close(connection,statement,null);
-        }
-        return false;
+        String sql = "update account set user_account='" + account.getUserAccount()
+                + "',user_password='" + account.getUserPassword()
+                + "' where id=" + account.getId();
+        return executeDML(sql) > 0;
     }
+
+
     public List<Account> findAll(){
         // 申明一个集合
         List<Account> list = new ArrayList<>();
@@ -105,7 +64,6 @@ public class AccountDAO {
                 account.setId(id);
                 account.setUserAccount(userAccount);
                 account.setUserPassword(password);
-
                 list.add(account);// 把每行数据放到集合里
             }
         } catch (SQLException e) {
@@ -144,21 +102,28 @@ public class AccountDAO {
         }
         return account;
     }
-    public List<Account> findByKeyword(Object keyword) {
-        return null;
-    }
 
-    private void test(int ...sumArray) {
-        int sum = 0;
-        for(int i = 0; i < sumArray.length; i ++) {
-            sum += sumArray[i];
+    public List<Account> findByKeyword(Object keyword) {
+        String sql = "select user_account,user_password,id from account " +
+                "where user_account like '%" + keyword +
+                "%' or user_password like '%" + keyword + "%'";
+
+        List<Object> list = query(sql);
+        List<Account> accountList = new ArrayList<>();
+        for(Object data : list) {
+            Object [] d = (Object[]) data;
+            Account account = new Account();
+            account.setUserAccount(d[0] + "");
+            account.setUserPassword(d[1] + "");
+            account.setId(Integer.parseInt(d[2] + ""));
+            accountList.add(account);
         }
-        System.out.println("sum = " + sum);
+        return accountList;
     }
     public static void main(String ... args) {
         AccountDAO dao = new AccountDAO();
         //int [] sum = {1,2,3,4,5,7};
-        dao.test(1,2,3,4,5,6,7);
+       System.out.println(dao.findByKeyword("5"));
         //List<Account> list = dao.findAll();
 //        Account account = dao.findById(50);
 //        System.out.println(account);
