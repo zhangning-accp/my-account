@@ -12,15 +12,15 @@ import java.util.List;
  * Created by zn on 2018/7/18.
  * 对表Account的数据操作
  */
-public class AccountDAO extends SuperDAO{
+public class AccountDAO extends SuperDAO implements IAccountDAO{
 
+    @Override
     public boolean delete(int id) {
         String sql = "delete from account where id=" + id;
         return executeDML(sql) > 0;
     }
 
-
-
+    @Override
     public boolean insert(Account account) {
             //2. 构建添加数据的sql语句
         String sql = "insert into account " +
@@ -31,6 +31,7 @@ public class AccountDAO extends SuperDAO{
         return executeDML(sql) > 0;
     }
 
+    @Override
     public boolean update(Account account) {
             //2. 创建update sql 语句
         String sql = "update account set user_account='" + account.getUserAccount()
@@ -39,7 +40,7 @@ public class AccountDAO extends SuperDAO{
         return executeDML(sql) > 0;
     }
 
-
+    @Override
     public List<Account> findAll(){
         // 申明一个集合
         List<Account> list = new ArrayList<>();
@@ -73,6 +74,7 @@ public class AccountDAO extends SuperDAO{
         }
         return list;
     }
+    @Override
     public Account findById(int id){
         //1. 获取数据库连接
         Connection connection = JDBCUtil.getConnection();
@@ -103,6 +105,7 @@ public class AccountDAO extends SuperDAO{
         return account;
     }
 
+    @Override
     public List<Account> findByKeyword(Object keyword) {
         String sql = "select user_account,user_password,id from account " +
                 "where user_account like '%" + keyword +

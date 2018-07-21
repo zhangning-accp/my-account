@@ -21,7 +21,7 @@ import org.omg.PortableInterceptor.ACTIVE;
  * 负责account 实体 的文件数据操作的DAO
  * Data access object
  */
-public class AccountFileDAO {
+public class AccountFileDAO implements IAccountDAO {
     private static final String FILE_NAME = "account.hnb";
     public boolean delete(int id) {
         List<Account> list = findAll();
@@ -41,12 +41,8 @@ public class AccountFileDAO {
         boolean isRemove = list.removeIf(p->p.getId() == id);
         StringBuffer buffer = new StringBuffer();
         for(Account account : list) {
-            buffer.append(account.getId() + " " )
-                    .append(account.getUserAccount() + " ")
-                    .append(account.getUserPassword())
-                    .append(System.lineSeparator());
+            buffer.append(builderAccount2String(account));
         }
-
         writer2File(buffer.toString());
         return  isRemove;
     }
@@ -62,10 +58,7 @@ public class AccountFileDAO {
         //1. 选择一个字符文件输出流
         try(FileWriter writer = new FileWriter(FILE_NAME)) {
             //2. 将数据拼接成我们所需要的字符串格式： id account password
-            String data = account.getId() + " " +
-                    account.getUserAccount() + " " +
-                    account.getUserPassword();
-            buffer.append(data + System.lineSeparator());
+            buffer.append(builderAccount2String(account));
             writer.write(buffer.toString());//3. 保存到文件
             return true;
         } catch (IOException e) {e.printStackTrace();}
@@ -90,10 +83,7 @@ public class AccountFileDAO {
         // 保存到文件
         StringBuffer buffer = new StringBuffer();
         for(Account tmp : list) {
-            buffer.append(tmp.getId() + " " )
-                    .append(tmp.getUserAccount() + " ")
-                    .append(tmp.getUserPassword())
-                    .append(System.lineSeparator());
+            buffer.append(builderAccount2String(tmp));
         }
         writer2File(buffer.toString());
         return false;
@@ -148,7 +138,6 @@ public class AccountFileDAO {
 //                filters.add(account);
 //            }
 //        }
-
         list = list.stream().filter(p->{
             if(p.getUserPassword().contains(keyword + "")
                     || p.getUserAccount().contains(keyword + "")) {
@@ -192,6 +181,14 @@ public class AccountFileDAO {
             //2. 将数据拼接成我们所需要的字符串格式： id account password
             writer.write(content);//3. 保存到文件
         } catch (IOException e) {e.printStackTrace();}
+    }
+
+    private String builderAccount2String(Account account) {
+        String str = account.getId() + " " +
+                account.getUserAccount() + " " +
+                account.getUserPassword() +
+                System.lineSeparator();
+        return str;
     }
 
     public static void main(String [] args) {

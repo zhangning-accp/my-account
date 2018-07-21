@@ -22,6 +22,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import oop.dao.Account;
 import oop.dao.AccountDAO;
+import oop.dao.AccountFileDAO;
+import oop.dao.IAccountDAO;
 import oop.jdbc.JDBCDemo;
 
 /**
@@ -57,8 +59,7 @@ public class AccountFrame extends JFrame {
 
     JPanel panelContent = new JPanel();
 
-    //JDBCDemo jdbcDemo = new JDBCDemo();
-    AccountDAO dao = new AccountDAO();
+    IAccountDAO dao = new AccountDAO();
 
     public AccountFrame() {
         // === 初始化组件 =======
