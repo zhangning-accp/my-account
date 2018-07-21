@@ -36,9 +36,11 @@ public class IODemo {
         }
     }
     private void reaer2Control() {
+        FileReader input = null;
+        FileWriter output = null;
         try {
-            FileReader input = new FileReader("1.jpg");
-            FileWriter output = new FileWriter("1-1.jpg");
+            input = new FileReader("1.jpg");
+            output = new FileWriter("1-1.jpg");
             int content = -1;
             while((content = input.read()) != -1) {
                 output.write(content);
@@ -47,6 +49,12 @@ public class IODemo {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                input.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

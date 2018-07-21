@@ -8,8 +8,6 @@ import java.io.IOException;
  * File类使用的演示
  */
 public class FileDemo {
-
-
     public static void main(String [] args) {
         File file = new File("a/b/c");
         String path = file.getAbsolutePath();
