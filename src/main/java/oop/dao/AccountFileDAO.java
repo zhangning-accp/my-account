@@ -10,7 +10,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.omg.PortableInterceptor.ACTIVE;
 
 /**
@@ -21,7 +24,31 @@ import org.omg.PortableInterceptor.ACTIVE;
 public class AccountFileDAO {
     private static final String FILE_NAME = "account.hnb";
     public boolean delete(int id) {
-        return  false;
+        List<Account> list = findAll();
+//        Iterator<Account> iterator = list.iterator();
+//        while(iterator.hasNext()) {
+//            if(iterator.next().getId() == id) {
+//                iterator.remove();
+//            }
+//        }
+//
+//        for(int i = 0; i < list.size(); i ++) {
+//            if(list.get(i).getId() == id) {
+//                list.remove(list.get(i));
+//                break;
+//            }
+//        }
+        boolean isRemove = list.removeIf(p->p.getId() == id);
+        StringBuffer buffer = new StringBuffer();
+        for(Account account : list) {
+            buffer.append(account.getId() + " " )
+                    .append(account.getUserAccount() + " ")
+                    .append(account.getUserPassword())
+                    .append(System.lineSeparator());
+        }
+
+        writer2File(buffer.toString());
+        return  isRemove;
     }
 
     public boolean insert(Account account) {
@@ -47,10 +74,30 @@ public class AccountFileDAO {
     }
 
     public boolean update(Account account) {
+        List<Account> list = findAll();
+//        for(Account a : list) {
+//            if(a.getId() == account.getId()) {
+//                a.setId();
+//            }
+//        }
+        list.stream().forEach(p->{
+            //找到需要修改的数据(通过id来确定)，将对应对象的账号和密码修改为传入的对象数据
+            if(p.getId() == account.getId()) {
+                p.setUserAccount(account.getUserAccount());
+                p.setUserPassword(account.getUserPassword());
+            }
+        });
+        // 保存到文件
+        StringBuffer buffer = new StringBuffer();
+        for(Account tmp : list) {
+            buffer.append(tmp.getId() + " " )
+                    .append(tmp.getUserAccount() + " ")
+                    .append(tmp.getUserPassword())
+                    .append(System.lineSeparator());
+        }
+        writer2File(buffer.toString());
         return false;
     }
-
-
 
     public List<Account> findAll(){
         List<Account> list = new ArrayList<>();
@@ -75,16 +122,42 @@ public class AccountFileDAO {
 //                }
 //            }
             list.add(account);
-        }
+    }
         //3. 拆分字符串
         return list;
     }
     public Account findById(int id){
-        return null;
+        List<Account> list = findAll();
+//        for(Account account : list) {
+//            if(account.getId() == id) {
+//                return account;
+//            }
+//        }
+       Account account = list.stream().filter(p->p.getId() == id)
+               .findFirst().get();
+
+        return account;
     }
 
     public List<Account> findByKeyword(Object keyword) {
-        return null;
+        List<Account> list = findAll();
+//        List<Account> filters = new ArrayList<>();
+//        for(Account account : list) {
+//            if(account.getUserPassword().contains(keyword + "")
+//                    || account.getUserAccount().contains(keyword + "")) {
+//                filters.add(account);
+//            }
+//        }
+
+        list = list.stream().filter(p->{
+            if(p.getUserPassword().contains(keyword + "")
+                    || p.getUserAccount().contains(keyword + "")) {
+               return true;
+            }
+            return false;
+        }).collect(Collectors.toList());
+
+        return list;
     }
 
     /**
@@ -113,6 +186,14 @@ public class AccountFileDAO {
         return buffer.toString();
     }
 
+    private void writer2File(String content) {
+        //1. 选择一个字符文件输出流
+        try(FileWriter writer = new FileWriter(FILE_NAME)) {
+            //2. 将数据拼接成我们所需要的字符串格式： id account password
+            writer.write(content);//3. 保存到文件
+        } catch (IOException e) {e.printStackTrace();}
+    }
+
     public static void main(String [] args) {
         AccountFileDAO dao = new AccountFileDAO();
 //        Account account = new Account();
@@ -120,6 +201,7 @@ public class AccountFileDAO {
 //        account.setUserAccount("1211.com");
 //        account.setUserPassword("sdf11");
 //        dao.insert(account);
-        dao.findAll();
+        List<Account> list = dao.findByKeyword("5");
+        System.out.println(list);
     }
 }
