@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 import oop.dao.Account;
 import oop.dao.AccountDAO;
 import oop.dao.AccountFileDAO;
+import oop.dao.ApplicationConfig;
 import oop.dao.IAccountDAO;
 import oop.jdbc.JDBCDemo;
 
@@ -59,9 +60,20 @@ public class AccountFrame extends JFrame {
 
     JPanel panelContent = new JPanel();
 
-    IAccountDAO dao = new AccountDAO();
+    IAccountDAO dao = null;
 
     public AccountFrame() {
+        try {
+            //通过反射动态加载类，并创建dao对象
+            dao = (IAccountDAO) Class.forName(ApplicationConfig.getClassName())
+                        .newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         // === 初始化组件 =======
         panelSearch.setLayout(new BorderLayout());//设置布局
         panelSearch.add(txtSearch);//添加搜索框到中间部分

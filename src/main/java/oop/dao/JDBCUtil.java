@@ -14,13 +14,13 @@ public class JDBCUtil {
     public static Connection getConnection() {
         //1. 加载驱动
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName(ApplicationConfig.getDriver());
             //2. 创建数据库连接字符串
-            String dbURL = "jdbc:mysql://127.0.0.1:3306/hnb11";
+            String dbURL = ApplicationConfig.getDbUrl();
             //3. 建立数据库连接
             try {
                 Connection connection = DriverManager.getConnection(dbURL,
-                        "root","root");
+                        ApplicationConfig.getUserName(),ApplicationConfig.getPassword());
                 return connection;
             } catch (SQLException e) {
                 e.printStackTrace();
